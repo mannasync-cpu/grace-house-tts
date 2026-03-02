@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: grace-house-tts
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8123
+    healthCheckPath: /health

@@ -1,0 +1,36 @@
+{
+  "node": {
+    "0077ff44ca9a369880b9a911a3e4189997d22ffa48": {
+      "workers": {
+        "app/contacts/page": {
+          "moduleId": 22793,
+          "async": false,
+          "exportedName": "syncContactsAction",
+          "filename": "src/app/actions.ts"
+        }
+      },
+      "layer": {
+        "app/contacts/page": "action-browser"
+      },
+      "filename": "src/app/actions.ts",
+      "exportedName": "syncContactsAction"
+    },
+    "40661422ff7c85d0cf7d1c6fbfb2737d313c6e9db9": {
+      "workers": {
+        "app/logs/page": {
+          "moduleId": 53438,
+          "async": false,
+          "exportedName": "runPipelineAction",
+          "filename": "src/app/actions.ts"
+        }
+      },
+      "layer": {
+        "app/logs/page": "action-browser"
+      },
+      "filename": "src/app/actions.ts",
+      "exportedName": "runPipelineAction"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "7t1TBZAebz6lPOYenS3spLrO55Dp1q9NXDSo0YhFRAo="
+}

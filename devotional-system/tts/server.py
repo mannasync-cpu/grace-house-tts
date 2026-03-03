@@ -1,23 +1,27 @@
 """
-Edge-TTS FastAPI Server
+Edge-TTS FastAPI Server + Mailchimp Proxy
 Cloud-based TTS using Microsoft Edge's free neural voices.
-No API key required. Unlimited usage.
+Also proxies Mailchimp API calls to avoid browser CORS restrictions.
 
 Endpoints:
-  POST /synthesize - Generate speech from text
-  GET  /voices     - List available voice profiles
-  GET  /health     - Server health check
+  POST /synthesize    - Generate speech from text
+  POST /mailchimp     - Proxy Mailchimp API calls (CORS bypass)
+  GET  /voices        - List available voice profiles
+  GET  /health        - Server health check
 """
 
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import uvicorn
 import uuid
 import asyncio
 import edge_tts
+import httpx
 from datetime import datetime
 from pathlib import Path
+from typing import Optional, Any
 
 app = FastAPI(title="Edge-TTS Server", version="2.0.0")
 
@@ -181,9 +185,54 @@ async def synthesize(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ─── Mailchimp CORS Proxy ─────────────────────────────────────────
+
+class MailchimpProxyRequest(BaseModel):
+    api_key: str
+    server_prefix: str
+    endpoint: str
+    method: str = "GET"
+    body: Optional[Any] = None
+
+
+@app.post("/mailchimp")
+async def mailchimp_proxy(req: MailchimpProxyRequest):
+    """
+    Proxy Mailchimp API calls to avoid browser CORS restrictions.
+    The API key comes from the client's env vars (NEXT_PUBLIC_MAILCHIMP_API_KEY).
+    """
+    import base64
+    base_url = f"https://{req.server_prefix}.api.mailchimp.com/3.0"
+    auth = base64.b64encode(f"anystring:{req.api_key}".encode()).decode()
+
+    headers = {
+        "Authorization": f"Basic {auth}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        if req.method.upper() == "GET":
+            resp = await client.get(f"{base_url}{req.endpoint}", headers=headers)
+        elif req.method.upper() == "PUT":
+            resp = await client.put(f"{base_url}{req.endpoint}", headers=headers, json=req.body)
+        elif req.method.upper() == "DELETE":
+            resp = await client.delete(f"{base_url}{req.endpoint}", headers=headers)
+        else:
+            resp = await client.post(f"{base_url}{req.endpoint}", headers=headers, json=req.body)
+
+    if resp.status_code >= 400:
+        raise HTTPException(status_code=resp.status_code, detail=resp.text)
+
+    # Some Mailchimp endpoints return empty body (204)
+    if resp.status_code == 204 or not resp.text:
+        return {"ok": True}
+
+    return resp.json()
+
+
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 8123))
-    print(f"Starting Edge-TTS Server on port {port}...")
+    print(f"Starting Edge-TTS + Mailchimp Proxy Server on port {port}...")
     print("Engine: Microsoft Neural Voices (cloud-based, free, unlimited)")
     uvicorn.run(app, host="0.0.0.0", port=port)

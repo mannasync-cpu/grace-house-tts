@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/audio/layout,_N_T_/audio/page,_N_T_/audio"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/audio/__PAGE__",
+    "/audio",
+    "/_index",
+    "/_head"
+  ]
+}

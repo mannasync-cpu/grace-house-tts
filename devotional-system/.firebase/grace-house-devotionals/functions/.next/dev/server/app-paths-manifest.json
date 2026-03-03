@@ -1,7 +1,0 @@
-{
-  "/channels/page": "app/channels/page.js",
-  "/devotionals/new/page": "app/devotionals/new/page.js",
-  "/devotionals/page": "app/devotionals/page.js",
-  "/page": "app/page.js",
-  "/settings/page": "app/settings/page.js"
-}

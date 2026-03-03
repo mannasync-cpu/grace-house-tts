@@ -1,0 +1,26 @@
+# Firebase build artifacts
+.firebase/
+*/.firebase/
+
+# Node modules
+node_modules/
+*/node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env*.local
+
+# OS files
+.DS_Store
+
+# Firebase/Google service account keys
+*-firebase-adminsdk-*.json
+service-account.json
+
+# Large/generated files
+*.sst
